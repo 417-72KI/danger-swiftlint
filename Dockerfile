@@ -3,7 +3,7 @@ FROM 41772ki/swift-mint:latest
 LABEL maintainer "417-72KI <417.72ki@gmail.com>"
 
 ENV DANGER_SWIFT_REVISION=master
-ENV SWIFT_LINT_REVISION=0.38.2
+ENV SWIFT_LINT_REVISION=master
 
 # Install SwiftLint
 RUN mint install realm/SwiftLint@${SWIFT_LINT_REVISION}
