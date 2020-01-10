@@ -1,7 +1,7 @@
 FROM 41772ki/swift-mint:latest
 
-LABEL repository "https://github.com/417-72KI/Docker-Danger-SwiftLint"
-LABEL homepage "https://github.com/417-72KI/Docker-Danger-SwiftLint"
+LABEL repository "https://github.com/417-72KI/danger-swiftlint"
+LABEL homepage "https://github.com/417-72KI/danger-swiftlint"
 LABEL maintainer "417-72KI <417.72ki@gmail.com>"
 
 ARG DANGER_SWIFT_REVISION=master
