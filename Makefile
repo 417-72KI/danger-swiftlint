@@ -16,5 +16,5 @@ swiftlint_version: build
 	docker run ${IMAGE_NAME} swiftlint version
 
 run_local: build
-	docker run -it $(IMAGE_NAME) local
+	docker run -v `pwd`:`pwd` -w `pwd` -it $(IMAGE_NAME) local
 
