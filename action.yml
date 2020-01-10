@@ -1,0 +1,9 @@
+name: 'GitHub Action for Danger-Swift + SwiftLint'
+description: 'Runs Danger-Swift with SwiftLint'
+author: '417-72KI <417_72ki@gmail.com>'
+runs:
+  using: 'docker'
+  image: 'docker://41772ki/danger-swiftlint:latest'
+branding:
+  icon: 'alert-circle'
+  color: 'purple'
