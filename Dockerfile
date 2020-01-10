@@ -9,7 +9,11 @@ ENV SWIFT_LINT_REVISION=0.38.2
 RUN mint install realm/SwiftLint@${SWIFT_LINT_REVISION}
 
 # Install Danger-Swift
-RUN mint install danger/swift@${DANGER_SWIFT_REVISION}
+# Error occurs on running(https://github.com/danger/swift/issues/309)
+# RUN mint install danger/swift@${DANGER_SWIFT_REVISION}
+RUN git clone --depth=1 -b ${DANGER_SWIFT_REVISION} https://github.com/danger/danger-swift.git ~/danger-swift \
+    && make -C ~/danger-swift install \
+    && rm -rf ~/danger-swift
 
 # Install NPM
 RUN apt-get update \
