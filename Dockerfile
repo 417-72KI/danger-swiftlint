@@ -14,3 +14,6 @@ RUN apt-get update \
     && apt-get install -y npm
 
 RUN npm install -g danger
+
+ENTRYPOINT [ "danger-swift" ]
+CMD [ "ci" ]
