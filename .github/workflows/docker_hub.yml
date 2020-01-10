@@ -1,0 +1,31 @@
+name: DockerHub
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/docker_hub.yml'
+      - '.github/workflows/validate.yml'
+      - '**/Dockerfile'
+env:
+  DOCKER_USER: 41772ki
+  DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+  DOCKER_REPO: danger-swiftlint
+jobs:
+  build:
+    strategy:
+      matrix:
+        version: [latest]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build Docker image
+      run: docker build -t "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.version }}" .
+    - name: Validate Danger-Swift
+      run: docker run "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.version }}" --version
+    - name: Validate SwiftLint
+      run: docker run --entrypoint swiftlint "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.version }}" version
+    - name: Login DockerHub
+      run: echo "${DOCKER_PASS}" | docker login -u ${DOCKER_USER} --password-stdin
+    - name: Push DockerHub
+      run: |
+        docker push "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.version }}"
