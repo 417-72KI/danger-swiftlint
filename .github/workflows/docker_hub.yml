@@ -29,3 +29,7 @@ jobs:
     - name: Push DockerHub
       run: |
         docker push "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.version }}"
+    - name: Update readme on DockerHub
+      uses: wei/curl@v1
+      with:
+        args: -X POST ${{ env.DOCKER_HUB_TRIGGER_URL }}

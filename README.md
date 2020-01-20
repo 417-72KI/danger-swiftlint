@@ -7,8 +7,7 @@ Docker image for Danger-Swift using SwiftLint
 ## Local Docker
 
 ```sh
-$ docker pull 41772ki/danger-swiftlint
-$ docker run 41772ki/danger-swiftlint local
+$ docker run -v `pwd`:`pwd` -w `pwd` 41772ki/danger-swiftlint local
 ```
 
 ## GitHub Actions
