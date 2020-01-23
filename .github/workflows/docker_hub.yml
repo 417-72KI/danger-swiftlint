@@ -14,21 +14,21 @@ jobs:
   build:
     strategy:
       matrix:
-        version: [latest]
+        swift_version: [latest]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - name: Build Docker image
-      run: docker build -t "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.version }}" .
+      run: docker build -t "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}" swift-${{ matrix.swift_version }}
     - name: Validate Danger-Swift
-      run: docker run "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.version }}" --version
+      run: docker run "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}" --version
     - name: Validate SwiftLint
-      run: docker run --entrypoint swiftlint "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.version }}" version
+      run: docker run --entrypoint swiftlint "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}" version
     - name: Login DockerHub
       run: echo "${DOCKER_PASS}" | docker login -u ${DOCKER_USER} --password-stdin
     - name: Push DockerHub
       run: |
-        docker push "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.version }}"
+        docker push "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}"
     - name: Update readme on DockerHub
       uses: wei/curl@v1
       with:
