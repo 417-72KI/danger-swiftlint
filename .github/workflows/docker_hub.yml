@@ -20,8 +20,12 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build Docker image
       run: docker build -t "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}" --build-arg "SWIFT_VERSION=${{ matrix.swift_version }}" .
+    - name: Validate Swift
+      run: docker run --entrypoint swift "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}" --version
     - name: Validate Danger-Swift
       run: docker run "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}" --version
+    - name: Validate Danger-JS
+      run: docker run --entrypoint danger "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}" --version
     - name: Validate SwiftLint
       run: docker run --entrypoint swiftlint "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}" version
     - name: Login DockerHub
