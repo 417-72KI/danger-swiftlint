@@ -29,5 +29,9 @@ RUN apt-get update \
 # Install Danger-JS(Danger-Swift depends)
 RUN npm install -g danger
 
-ENTRYPOINT [ "danger-swift" ]
+
+ADD entrypoint.sh /usr/local/bin/entrypoint
+ADD versions.sh /usr/local/bin/show-versions
+
+ENTRYPOINT [ "entrypoint" ]
 CMD [ "ci" ]
