@@ -14,12 +14,12 @@ jobs:
   build:
     strategy:
       matrix:
-        swift_version: [latest]
+        swift_version: [latest, 5.1.2, 5.1.1, 5.0.3, 5.0.2, 5.0.1]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - name: Build Docker image
-      run: docker build -t "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}" swift-${{ matrix.swift_version }}
+      run: docker build -t "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}" --build-arg "SWIFT_VERSION=${{ matrix.swift_version }}" .
     - name: Validate Danger-Swift
       run: docker run "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}" --version
     - name: Validate SwiftLint

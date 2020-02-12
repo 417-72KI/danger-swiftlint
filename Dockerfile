@@ -1,4 +1,5 @@
-FROM 41772ki/swift-mint:latest
+ARG SWIFT_VERSION=latest
+FROM 41772ki/swift-mint:${SWIFT_VERSION}
 
 LABEL repository "https://github.com/417-72KI/danger-swiftlint"
 LABEL homepage "https://github.com/417-72KI/danger-swiftlint"
