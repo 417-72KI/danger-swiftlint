@@ -27,8 +27,21 @@ RUN apt-get update \
     && apt-get install -y npm
 
 # Install Danger-JS(Danger-Swift depends)
-RUN npm install -g danger
+# RUN npm install -g danger/danger-js
 
+# Temporary
+RUN apt-get install -y curl \
+    && curl -o- -L https://yarnpkg.com/install.sh | bash \
+    && npm install -g shx typescript \
+    && mkdir danger-js \
+    && cd danger-js \
+    && git init \
+    && git remote add origin https://github.com/danger/danger-js.git \
+    && git fetch --depth 1 origin d43ae5aa7d5d53008425f13e8059b32757851722 \
+    && git reset --hard FETCH_HEAD \
+    && ~/.yarn/bin/yarn install \
+    && ~/.yarn/bin/yarn build \
+    && npm link
 
 ADD entrypoint.sh /usr/local/bin/entrypoint
 ADD versions.sh /usr/local/bin/show-versions
