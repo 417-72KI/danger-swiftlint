@@ -6,6 +6,7 @@ on:
       - '.github/workflows/docker_hub.yml'
       - '.github/workflows/validate.yml'
       - '**/Dockerfile'
+      - 'Dockerfile'
   schedule:
     - cron: 0 21 * * 0
 env:
