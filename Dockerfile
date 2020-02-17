@@ -7,9 +7,11 @@ LABEL maintainer "417-72KI <417.72ki@gmail.com>"
 
 ARG DANGER_SWIFT_REVISION=master
 ARG SWIFT_LINT_REVISION=master
+ARG DANGER_JS_REVISION=master
 
 ENV DANGER_SWIFT_REVISION=${DANGER_SWIFT_REVISION} \
-    SWIFT_LINT_REVISION=${SWIFT_LINT_REVISION}
+    SWIFT_LINT_REVISION=${SWIFT_LINT_REVISION} \
+    DANGER_JS_REVISION=${DANGER_JS_REVISION}
 
 # Install SwiftLint
 RUN mint install realm/SwiftLint@${SWIFT_LINT_REVISION}
@@ -37,7 +39,7 @@ RUN apt-get install -y curl \
     && cd danger-js \
     && git init \
     && git remote add origin https://github.com/danger/danger-js.git \
-    && git fetch --depth 1 origin d43ae5aa7d5d53008425f13e8059b32757851722 \
+    && git fetch --depth 1 origin ${DANGER_JS_REVISION} \
     && git reset --hard FETCH_HEAD \
     && ~/.yarn/bin/yarn install \
     && ~/.yarn/bin/yarn build \
