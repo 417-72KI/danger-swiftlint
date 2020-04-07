@@ -21,3 +21,5 @@ jobs:
       run: docker build -t "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}" --build-arg "SWIFT_VERSION=${{ matrix.swift_version }}" .
     - name: Print Versions
       run: docker run --entrypoint show-versions "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}"
+    - name: Run with sample Dangerfile.swift
+      run: docker run "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}"
