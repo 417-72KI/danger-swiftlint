@@ -40,6 +40,7 @@ jobs:
           -e GITHUB_BASE_REF="${GITHUB_BASE_REF}" \
           -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
           -v /github:/github \
+          -v "${GITHUB_EVENT_PATH}":"${GITHUB_EVENT_PATH}" \
           -v "${GITHUB_WORKSPACE}":"${GITHUB_WORKSPACE}" \
           -w "${GITHUB_WORKSPACE}" \
           "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}"
