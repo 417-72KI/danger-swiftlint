@@ -22,4 +22,21 @@ jobs:
     - name: Print Versions
       run: docker run --entrypoint show-versions "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}"
     - name: Run with sample Dangerfile.swift
-      run: docker run "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}"
+      run: |
+        docker run \
+          -e GITHUB_WORKFLOW="${GITHUB_WORKFLOW}" \
+          -e GITHUB_RUN_ID="${GITHUB_RUN_ID}" \
+          -e GITHUB_RUN_NUMBER="${GITHUB_RUN_NUMBER}" \
+          -e GITHUB_ACTION="${GITHUB_ACTION}" \
+          -e GITHUB_ACTIONS="${GITHUB_ACTIONS}" \
+          -e GITHUB_ACTOR="${GITHUB_ACTOR}" \
+          -e GITHUB_REPOSITORY="${GITHUB_REPOSITORY}" \
+          -e GITHUB_EVENT_NAME="${GITHUB_EVENT_NAME}" \
+          -e GITHUB_EVENT_PATH="${GITHUB_EVENT_PATH}" \
+          -e GITHUB_WORKSPACE="${GITHUB_WORKSPACE}" \
+          -e GITHUB_SHA="${GITHUB_SHA}" \
+          -e GITHUB_REF="${GITHUB_REF}" \
+          -e GITHUB_HEAD_REF="${GITHUB_HEAD_REF}" \
+          -e GITHUB_BASE_REF="${GITHUB_BASE_REF}" \
+          -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
+          "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}"
