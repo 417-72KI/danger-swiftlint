@@ -26,7 +26,10 @@ RUN git clone --depth=1 -b ${DANGER_SWIFT_REVISION} https://github.com/danger/da
 # Install NPM
 RUN apt-get update \
     && mv /usr/lib/python2.7/site-packages /usr/lib/python2.7/dist-packages; ln -s dist-packages /usr/lib/python2.7/site-package \
-    && apt-get install -y npm
+    && apt-get install -y npm wget \
+    && npm install -g n \
+    && n stable \
+    && apt-get purge -y npm nodejs
 
 # Install Danger-JS(Danger-Swift depends)
 # RUN npm install -g danger/danger-js
