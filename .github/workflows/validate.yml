@@ -1,0 +1,46 @@
+name: Validate Dockerfile
+on: 
+  pull_request:
+    paths:
+      - '.github/workflows/docker_hub.yml'
+      - '.github/workflows/validate.yml'
+      - '**/Dockerfile'
+env:
+  DOCKER_USER: 41772ki
+  DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+  DOCKER_REPO: danger-swiftlint
+jobs:
+  validate:
+    strategy:
+      matrix:
+        swift_version: [latest, 5.1.3, 5.1.2, 5.1.1]
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build Docker image
+      run: docker build -t "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}" --build-arg "SWIFT_VERSION=${{ matrix.swift_version }}" .
+    - name: Print Versions
+      run: docker run --entrypoint show-versions "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}"
+    - name: Run with sample Dangerfile.swift
+      run: |
+        docker run \
+          -e GITHUB_WORKFLOW="${GITHUB_WORKFLOW}" \
+          -e GITHUB_RUN_ID="${GITHUB_RUN_ID}" \
+          -e GITHUB_RUN_NUMBER="${GITHUB_RUN_NUMBER}" \
+          -e GITHUB_ACTION="${GITHUB_ACTION}" \
+          -e GITHUB_ACTIONS="${GITHUB_ACTIONS}" \
+          -e GITHUB_ACTOR="${GITHUB_ACTOR}" \
+          -e GITHUB_REPOSITORY="${GITHUB_REPOSITORY}" \
+          -e GITHUB_EVENT_NAME="${GITHUB_EVENT_NAME}" \
+          -e GITHUB_EVENT_PATH="${GITHUB_EVENT_PATH}" \
+          -e GITHUB_WORKSPACE="${GITHUB_WORKSPACE}" \
+          -e GITHUB_SHA="${GITHUB_SHA}" \
+          -e GITHUB_REF="${GITHUB_REF}" \
+          -e GITHUB_HEAD_REF="${GITHUB_HEAD_REF}" \
+          -e GITHUB_BASE_REF="${GITHUB_BASE_REF}" \
+          -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
+          -v /github:/github \
+          -v "${GITHUB_EVENT_PATH}":"${GITHUB_EVENT_PATH}" \
+          -v "${GITHUB_WORKSPACE}":"${GITHUB_WORKSPACE}" \
+          -w "${GITHUB_WORKSPACE}" \
+          "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}"
