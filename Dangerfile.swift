@@ -2,4 +2,4 @@ import Danger
 
 let danger = Danger()
 
-danger.message("test")
+danger.message("Validation passed! 🎉")
