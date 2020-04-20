@@ -3,7 +3,7 @@ description: 'Runs Danger-Swift with SwiftLint'
 author: '417-72KI <417_72ki@gmail.com>'
 runs:
   using: 'docker'
-  image: 'docker://41772ki/danger-swiftlint:5.1.3'
+  image: 'docker://41772ki/danger-swiftlint:5.1'
 branding:
   icon: 'alert-circle'
   color: 'purple'
