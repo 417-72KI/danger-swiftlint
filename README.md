@@ -29,3 +29,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
+
+### Note for version
+- v1: Swift5.1
+- v2: Swift5.2
