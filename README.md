@@ -23,9 +23,9 @@ jobs:
   Danger:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Danger
-        uses: 417-72KI/danger-swiftlint@v1
+        uses: 417-72KI/danger-swiftlint@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
