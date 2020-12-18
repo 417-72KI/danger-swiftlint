@@ -17,7 +17,7 @@ jobs:
   build:
     strategy:
       matrix:
-        swift_version: [latest, 5.3.1, 5.2.5, 5.2.4, 5.2.3, 5.2.2, 5.2.1]
+        swift_version: [latest, 5.3.2, 5.2.5, 5.2.4, 5.2.3, 5.2.2, 5.2.1]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
