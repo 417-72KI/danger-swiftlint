@@ -1,6 +1,6 @@
 # [![Docker Hub](http://dockeri.co/image/41772ki/danger-swiftlint)](https://hub.docker.com/r/41772ki/danger-swiftlint)
 
-Docker image for Danger-Swift using SwiftLint
+Docker image for [Danger-Swift](https://github.com/danger/swift) using [SwiftLint](https://github.com/realm/SwiftLint)
 
 # Usage Sample
 
@@ -33,4 +33,4 @@ jobs:
 ### Note for version
 - v3: Swift 5.3
 - v2: Swift 5.2
-- v1: Swift 5.1
+- v1: Swift 5.1 (no longer updated)
