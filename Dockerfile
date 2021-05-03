@@ -15,7 +15,7 @@ ENV DANGER_SWIFT_REVISION=${DANGER_SWIFT_REVISION} \
 
 # Install NPM
 RUN apt-get update \
-    && mv /usr/lib/python2.7/site-packages /usr/lib/python2.7/dist-packages; ln -s dist-packages /usr/lib/python2.7/site-package \
+    # && mv /usr/lib/python2.7/site-packages /usr/lib/python2.7/dist-packages; ln -s dist-packages /usr/lib/python2.7/site-package \
     && apt-get install -y npm wget \
     && npm install -g n \
     && n stable \
