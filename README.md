@@ -31,6 +31,7 @@ jobs:
 ```
 
 ### Note for version
+- v4: Swift 5.4
 - v3: Swift 5.3
 - v2: Swift 5.2
 - v1: Swift 5.1 (no longer updated)
