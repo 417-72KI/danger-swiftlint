@@ -1,12 +1,13 @@
 name: DockerHub
 on:
   push:
-    branches: [master]
+    branches: [main]
     paths:
       - '.github/workflows/docker_hub.yml'
       - '.github/workflows/validate.yml'
       - '**/Dockerfile'
       - 'Dockerfile'
+      - 'entrypoint.sh'
   schedule:
     - cron: 0 21 * * 0
 env:
