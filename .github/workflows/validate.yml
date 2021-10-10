@@ -10,14 +10,22 @@ env:
   DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
   DOCKER_REPO: danger-swiftlint
 jobs:
+  generate-matrix:
+    name: Generate matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v2
+      - id: set-matrix
+        run: |
+          matrix=$(cat versions.json | jq -c .)
+          echo "::set-output name=matrix::$matrix"
   validate:
+    needs: generate-matrix
     strategy:
-      matrix:
-        swift_version:
-          - latest
-          - 5.5
-          - 5.4
-          - 5.3
+      fail-fast: false
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
