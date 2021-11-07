@@ -3,7 +3,7 @@ description: 'Runs Danger-Swift with SwiftLint'
 author: '417-72KI <417.72ki@gmail.com>'
 inputs:
   dangerfile:
-    description: 'Path of Dangerfile.swift, if it is not in repo\'s root.'
+    description: 'Path of Dangerfile.swift, if it is not in repo''s root.'
     required: false
 runs:
   using: 'docker'
