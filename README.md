@@ -23,7 +23,7 @@ jobs:
   Danger:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Danger
         uses: 417-72KI/danger-swiftlint@v5.6
         env:
@@ -33,7 +33,7 @@ jobs:
 ### Note for version
 - v5.6: Swift 5.6
 - v5.5: Swift 5.5
-- v4: Swift 5.4
-- v3: Swift 5.3
+- v4: Swift 5.4 (no longer updated)
+- v3: Swift 5.3 (no longer updated)
 - v2: Swift 5.2 (no longer updated)
 - v1: Swift 5.1 (no longer updated)
