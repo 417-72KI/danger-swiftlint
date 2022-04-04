@@ -28,6 +28,9 @@ jobs:
       fail-fast: false
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     runs-on: ubuntu-latest
+    concurrency: 
+      group: ${{ github.head_ref }}-${{ github.workflow }}-${{ matrix.swift_version }}
+      cancel-in-progress: true
     steps:
     - uses: actions/checkout@v2
     - name: Build Docker image
