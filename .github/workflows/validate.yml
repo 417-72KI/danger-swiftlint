@@ -17,7 +17,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - id: set-matrix
         run: |
           matrix=$(cat versions.json | jq -c .)
@@ -33,7 +33,7 @@ jobs:
       group: ${{ github.head_ref }}-${{ github.workflow }}-${{ matrix.swift_version }}
       cancel-in-progress: true
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - id: set-swiftlint-version
       name: Set SwiftLint Version
       run: |
