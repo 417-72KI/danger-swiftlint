@@ -8,6 +8,7 @@ on:
       - '**/Dockerfile'
       - 'Dockerfile'
       - 'entrypoint.sh'
+      - 'versions.json'
   schedule:
     - cron: 0 21 * * 0
 env:
@@ -30,12 +31,26 @@ jobs:
     needs: generate-matrix
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+      matrix: 
+        swift_version: ${{ fromJson(needs.generate-matrix.outputs.matrix).swift_version }}
     runs-on: ubuntu-latest
+    concurrency: 
+      group: ${{ github.head_ref }}-${{ github.workflow }}-${{ matrix.swift_version }}
+      cancel-in-progress: true
     steps:
     - uses: actions/checkout@v2
+    - id: set-swiftlint-version
+      name: Set SwiftLint Version
+      run: |
+        swiftlint_version=$(echo '${{ needs.generate-matrix.outputs.matrix }}' | jq -c '.swiftlint_supported_version' | jq -r '.["${{ matrix.swift_version }}"]')
+        echo "::set-output name=swiftlint-version::$swiftlint_version"
     - name: Build Docker image
-      run: docker build -t "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}" --build-arg "SWIFT_VERSION=${{ matrix.swift_version }}" .
+      run: |
+        docker build \
+          -t "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}" \
+          --build-arg "SWIFT_VERSION=${{ matrix.swift_version }}" \
+          --build-arg "SWIFT_LINT_REVISION=${{ steps.set-swiftlint-version.outputs.swiftlint-version }}" \
+          .
     - name: Print Versions
       run: docker run --entrypoint show-versions "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}"
     - name: Login DockerHub
