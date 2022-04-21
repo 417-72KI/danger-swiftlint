@@ -31,6 +31,8 @@ jobs:
 ```
 
 ### Note for version
+> **Note** Version will match to Swift version since next time.
+
 - v5: Swift 5.5
 - v4: Swift 5.4
 - v3: Swift 5.3
