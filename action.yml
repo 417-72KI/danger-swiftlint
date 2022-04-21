@@ -7,7 +7,7 @@ inputs:
     required: false
 runs:
   using: 'docker'
-  image: 'docker://41772ki/danger-swiftlint:5.5'
+  image: 'docker://41772ki/danger-swiftlint:5.6'
 branding:
   icon: 'alert-circle'
   color: 'purple'
