@@ -50,8 +50,10 @@ jobs:
           SWIFT_VERSION=${{ matrix.swift_version }}
           SWIFT_LINT_REVISION=${{ steps.set-swiftlint-version.outputs.swiftlint-version }}
     - name: Print Versions
-      run: docker run --entrypoint show-versions "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}"
+      run: |
+        docker run --entrypoint show-versions "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}"
     - name: Run with sample Dangerfile.swift
+      if: ${{ matrix.swift_version == 'latest' }}
       run: |
         docker run \
           -e GITHUB_WORKFLOW="${GITHUB_WORKFLOW}" \
