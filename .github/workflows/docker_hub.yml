@@ -11,6 +11,7 @@ on:
       - 'versions.json'
   schedule:
     - cron: 0 21 * * 0
+  workflow_dispatch:
 env:
   DOCKER_USER: 41772ki
   DOCKER_REPO: danger-swiftlint
@@ -37,42 +38,91 @@ jobs:
       group: ${{ github.head_ref }}-${{ github.workflow }}-${{ matrix.swift_version }}
       cancel-in-progress: true
     steps:
-    - uses: actions/checkout@v3
-    - id: set-swiftlint-version
-      name: Set SwiftLint Version
-      run: |
-        swiftlint_version=$(echo '${{ needs.generate-matrix.outputs.matrix }}' | jq -c '.swiftlint_supported_version' | jq -r '.["${{ matrix.swift_version }}"]')
-        echo "::set-output name=swiftlint-version::$swiftlint_version"
-    - name: Login DockerHub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ env.DOCKER_USER }}
-        password: ${{ secrets.DOCKER_PASS }}
-    - name: Create tags for push
-      id: create-tags
-      run: |
-        if [ "${{ matrix.swift_version }}" == 'latest' ]; then
-          SWIFT_VERSION=latest BASE_IMAGE=$(eval "echo \"$(cat Dockerfile | grep FROM | awk '{ print $NF }')\"")
-          docker pull $BASE_IMAGE
-          SWIFT_VERSION=$(docker run --entrypoint swift "$BASE_IMAGE" --version | grep 'Swift version' | awk '{ print $NF }' | sed 's/[^0-9.]*\([0-9.]*\).*/\1/')
-          SWIFT_VERSION_MAJOR_MINOR=$(echo $SWIFT_VERSION | sed -E 's/([0-9]*)\.([0-9]*)(\.([0-9]*))?/\1.\2/g')
-          SWIFT_VERSION_MAJOR=$(echo $SWIFT_VERSION | sed -E 's/([0-9]*)\.([0-9]*)(\.([0-9]*))?/\1/g')
-          TAGS=$(echo "[\"latest\", \"$SWIFT_VERSION\", \"$SWIFT_VERSION_MAJOR_MINOR\",\"$SWIFT_VERSION_MAJOR\"]" | jq -r '. | unique | map("${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:" + .) | join(",")')
-          echo "::set-output name=tags::$TAGS"
-        else
-          echo "::set-output name=tags::${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }}"
-        fi
-    - name: Build Docker image and push to DockerHub
-      uses: docker/build-push-action@v2
-      with: 
-        push: true
-        tags: ${{ steps.create-tags.outputs.tags }}
-        build-args: |
-          SWIFT_VERSION=${{ matrix.swift_version }}
-          SWIFT_LINT_REVISION=${{ steps.set-swiftlint-version.outputs.swiftlint-version }}
-    - name: Print Versions
-      run: docker run --entrypoint show-versions "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}"
-    # - name: Update readme on DockerHub
-    #   uses: wei/curl@v1
-    #   with:
-    #     args: -X POST ${{ secrets.DOCKER_HUB_TRIGGER_URL }}
+      - uses: actions/checkout@v3
+      - id: set-swiftlint-version
+        name: Set SwiftLint Version
+        run: |
+          swiftlint_version=$(echo '${{ needs.generate-matrix.outputs.matrix }}' | jq -c '.swiftlint_supported_version' | jq -r '.["${{ matrix.swift_version }}"]')
+          echo "::set-output name=swiftlint-version::$swiftlint_version"
+      - name: Login DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ env.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+      - name: Fetch revisions for tools installed in current Docker image
+        id: revisions
+        run: |
+          echo "::set-output name=mint::$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.mint_revision)"
+          echo "::set-output name=swiftlint::$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.swiftlint_revision)"
+          echo "::set-output name=danger-js::$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.danger-js_revision)"
+          echo "::set-output name=danger-swift::$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.danger-swift_revision)"
+      - name: Create tags for push
+        id: create-tags
+        run: |
+          if [ "${{ matrix.swift_version }}" == 'latest' ]; then
+            SWIFT_VERSION=latest BASE_IMAGE=$(eval "echo \"$(cat Dockerfile | grep FROM | awk '{ print $NF }')\"")
+            docker pull $BASE_IMAGE
+            SWIFT_VERSION=$(docker run --entrypoint swift "$BASE_IMAGE" --version | grep 'Swift version' | awk '{ print $NF }' | sed 's/[^0-9.]*\([0-9.]*\).*/\1/')
+            SWIFT_VERSION_MAJOR_MINOR=$(echo $SWIFT_VERSION | sed -E 's/([0-9]*)\.([0-9]*)(\.([0-9]*))?/\1.\2/g')
+            SWIFT_VERSION_MAJOR=$(echo $SWIFT_VERSION | sed -E 's/([0-9]*)\.([0-9]*)(\.([0-9]*))?/\1/g')
+            TAGS=$(echo "[\"latest\", \"$SWIFT_VERSION\", \"$SWIFT_VERSION_MAJOR_MINOR\",\"$SWIFT_VERSION_MAJOR\"]" | jq -r '. | unique | map("${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:" + .) | join(",")')
+            echo "::set-output name=tags::$TAGS"
+          else
+            echo "::set-output name=tags::${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }}"
+          fi
+      - name: Build Docker image
+        id: build-image
+        uses: docker/build-push-action@v2
+        with: 
+          push: false
+          load: true
+          tags: ${{ steps.create-tags.outputs.tags }}
+          build-args: |
+            SWIFT_VERSION=${{ matrix.swift_version }}
+            SWIFT_LINT_REVISION=${{ steps.set-swiftlint-version.outputs.swiftlint-version }}
+      - name: Verify revisions to check if it needs to update image
+        id: needs-update
+        run: |
+          IMAGE_ID="$(echo ${{ steps.build-image.outputs.imageid }} | sed -r 's/:/ /g' | awk '{ print $NF }')"
+          echo "::set-output name=value::false"
+
+          BUILT_MINT_REVISION="$(docker run --entrypoint /bin/cat -t "${IMAGE_ID}" /.mint_revision | tr -d '\n')"
+          CURRENT_MINT_REVISION="$(echo ${{ steps.revisions.outputs.mint }} | tr -d '\n')"
+          if [ "${BUILT_MINT_REVISION::8}" != "${CURRENT_MINT_REVISION::8}" ]; then
+            echo 'mint updated.'
+            echo "::set-output name=value::true"
+          fi
+
+          BUILT_SWIFTLINT_REVISION="$(docker run --entrypoint /bin/cat -t "${IMAGE_ID}" /.swiftlint_revision | tr -d '\n')"
+          CURRENT_SWIFTLINT_REVISION="$(echo ${{ steps.revisions.outputs.swiftlint }} | tr -d '\n')"
+          if [ "${BUILT_SWIFTLINT_REVISION::8}" != "${CURRENT_SWIFTLINT_REVISION::8}" ]; then
+            echo 'swiftlint updated.'
+            echo "::set-output name=value::true"
+          fi
+
+          BUILT_DANGER_JS_REVISION="$(docker run --entrypoint /bin/cat -t "${IMAGE_ID}" /.danger-js_revision | tr -d '\n')"
+          CURRENT_DANGER_JS_REVISION="$(echo ${{ steps.revisions.outputs.danger-js }} | tr -d '\n')"
+          if [ "${BUILT_DANGER_JS_REVISION::8}" != "${CURRENT_DANGER_JS_REVISION::8}" ]; then
+            echo 'danger-js updated.'
+            echo "::set-output name=value::true"
+          fi
+
+          BUILT_DANGER_SWIFT_REVISION="$(docker run --entrypoint /bin/cat -t "${IMAGE_ID}" /.danger-swift_revision | tr -d '\n')"
+          CURRENT_DANGER_SWIFT_REVISION="$(echo ${{ steps.revisions.outputs.danger-swift }} | tr -d '\n')"
+          if [ "${BUILT_DANGER_SWIFT_REVISION::8}" != "${CURRENT_DANGER_SWIFT_REVISION::8}" ]; then
+            echo 'danger-swift updated.'
+            echo "::set-output name=value::true"
+          fi
+      - name: Push image to DockerHub
+        if: ${{ steps.needs-update.outputs.value == 'true' }}
+        uses: docker/build-push-action@v2
+        with: 
+          push: true
+          tags: ${{ steps.create-tags.outputs.tags }}
+          build-args: |
+            SWIFT_VERSION=${{ matrix.swift_version }}
+            SWIFT_LINT_REVISION=${{ steps.set-swiftlint-version.outputs.swiftlint-version }}
+      # - name: Update readme on DockerHub
+      #   uses: wei/curl@v1
+      #   with:
+      #     args: -X POST ${{ secrets.DOCKER_HUB_TRIGGER_URL }}
