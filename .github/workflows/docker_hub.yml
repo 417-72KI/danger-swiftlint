@@ -85,28 +85,28 @@ jobs:
           IMAGE_ID="$(echo ${{ steps.build-image.outputs.imageid }} | sed -r 's/:/ /g' | awk '{ print $NF }')"
           echo "::set-output name=value::false"
 
-          BUILT_MINT_REVISION="$(docker run -t "${IMAGE_ID}" cat /.mint_revision | tr -d '\n')"
+          BUILT_MINT_REVISION="$(docker run --entrypoint /bin/cat -t "${IMAGE_ID}" /.mint_revision | tr -d '\n')"
           CURRENT_MINT_REVISION="$(echo ${{ steps.revisions.outputs.mint }} | tr -d '\n')"
           if [ "${BUILT_MINT_REVISION::8}" != "${CURRENT_MINT_REVISION::8}" ]; then
             echo 'mint updated.'
             echo "::set-output name=value::true"
           fi
 
-          BUILT_SWIFTLINT_REVISION="$(docker run -t "${IMAGE_ID}" cat /.swiftlint_revision | tr -d '\n')"
+          BUILT_SWIFTLINT_REVISION="$(docker run --entrypoint /bin/cat -t "${IMAGE_ID}" /.swiftlint_revision | tr -d '\n')"
           CURRENT_SWIFTLINT_REVISION="$(echo ${{ steps.revisions.outputs.swiftlint }} | tr -d '\n')"
           if [ "${BUILT_SWIFTLINT_REVISION::8}" != "${CURRENT_SWIFTLINT_REVISION::8}" ]; then
             echo 'swiftlint updated.'
             echo "::set-output name=value::true"
           fi
 
-          BUILT_DANGER_JS_REVISION="$(docker run -t "${IMAGE_ID}" cat /.danger-js_revision | tr -d '\n')"
+          BUILT_DANGER_JS_REVISION="$(docker run --entrypoint /bin/cat -t "${IMAGE_ID}" /.danger-js_revision | tr -d '\n')"
           CURRENT_DANGER_JS_REVISION="$(echo ${{ steps.revisions.outputs.danger-js }} | tr -d '\n')"
           if [ "${BUILT_DANGER_JS_REVISION::8}" != "${CURRENT_DANGER_JS_REVISION::8}" ]; then
             echo 'danger-js updated.'
             echo "::set-output name=value::true"
           fi
 
-          BUILT_DANGER_SWIFT_REVISION="$(docker run -t "${IMAGE_ID}" cat /.danger-swift_revision | tr -d '\n')"
+          BUILT_DANGER_SWIFT_REVISION="$(docker run --entrypoint /bin/cat -t "${IMAGE_ID}" /.danger-swift_revision | tr -d '\n')"
           CURRENT_DANGER_SWIFT_REVISION="$(echo ${{ steps.revisions.outputs.danger-swift }} | tr -d '\n')"
           if [ "${BUILT_DANGER_SWIFT_REVISION::8}" != "${CURRENT_DANGER_SWIFT_REVISION::8}" ]; then
             echo 'danger-swift updated.'
