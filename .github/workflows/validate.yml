@@ -42,17 +42,23 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
     - name: Build Docker image
+      id: build-image
       uses: docker/build-push-action@v2
       with: 
         push: false
+        load: true
         tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }}
         build-args: |
           SWIFT_VERSION=${{ matrix.swift_version }}
           SWIFT_LINT_REVISION=${{ steps.set-swiftlint-version.outputs.swiftlint-version }}
     - name: Print Versions
-      run: docker run --entrypoint show-versions "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}"
-    - name: Run with sample Dangerfile.swift
       run: |
+        IMAGE_ID="$(echo ${{ steps.build-image.outputs.imageid }} | sed -r 's/:/ /g' | awk '{ print $NF }')"
+        docker run --entrypoint show-versions "$IMAGE_ID"
+    - name: Run with sample Dangerfile.swift
+      if: ${{ matrix.swift_version == 'latest' }}
+      run: |
+        IMAGE_ID="$(echo ${{ steps.build-image.outputs.imageid }} | sed -r 's/:/ /g' | awk '{ print $NF }')"
         docker run \
           -e GITHUB_WORKFLOW="${GITHUB_WORKFLOW}" \
           -e GITHUB_RUN_ID="${GITHUB_RUN_ID}" \
@@ -73,4 +79,4 @@ jobs:
           -v "${GITHUB_EVENT_PATH}":"${GITHUB_EVENT_PATH}" \
           -v "${GITHUB_WORKSPACE}":"${GITHUB_WORKSPACE}" \
           -w "${GITHUB_WORKSPACE}" \
-          "${DOCKER_USER}/${DOCKER_REPO}:${{ matrix.swift_version }}"
+          "${IMAGE_ID}"
