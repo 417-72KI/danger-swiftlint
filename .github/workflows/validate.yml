@@ -5,7 +5,7 @@ on:
       - '.github/workflows/docker_hub.yml'
       - '.github/workflows/validate.yml'
       - '**/Dockerfile'
-      - 'versions.json'
+      - '.github/matrix.json'
 env:
   DOCKER_USER: 41772ki
   DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v3
       - id: set-matrix
         run: |
-          matrix=$(cat versions.json | jq -c .)
+          matrix=$(cat .github/matrix.json | jq -c .)
           echo "::set-output name=matrix::$matrix"
   validate:
     needs: generate-matrix
