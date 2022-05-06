@@ -45,7 +45,7 @@ jobs:
           swiftlint_version=$(echo '${{ needs.generate-matrix.outputs.matrix }}' | jq -c '.swiftlint_supported_version' | jq -r '.["${{ matrix.swift_version }}"]')
           echo "::set-output name=swiftlint-version::$swiftlint_version"
       - name: Login DockerHub
-        uses: docker/login-action@v1
+        uses: docker/login-action@v2
         with:
           username: ${{ env.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
