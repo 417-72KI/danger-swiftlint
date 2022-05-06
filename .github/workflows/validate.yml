@@ -40,7 +40,7 @@ jobs:
         swiftlint_version=$(echo '${{ needs.generate-matrix.outputs.matrix }}' | jq -c '.swiftlint_supported_version' | jq -r '.["${{ matrix.swift_version }}"]')
         echo "::set-output name=swiftlint-version::$swiftlint_version"
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+      uses: docker/setup-buildx-action@v2
     - name: Build Docker image
       id: build-image
       uses: docker/build-push-action@v3
