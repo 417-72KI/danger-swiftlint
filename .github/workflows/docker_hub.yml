@@ -59,17 +59,20 @@ jobs:
       - name: Create tags for push
         id: create-tags
         run: |
-          if [ "${{ matrix.swift_version }}" == 'latest' ]; then
-            SWIFT_VERSION=latest BASE_IMAGE=$(eval "echo \"$(cat Dockerfile | grep FROM | awk '{ print $NF }')\"")
-            docker pull $BASE_IMAGE
-            SWIFT_VERSION=$(docker run --entrypoint swift "$BASE_IMAGE" --version | grep 'Swift version' | awk '{ print $NF }' | sed 's/[^0-9.]*\([0-9.]*\).*/\1/')
-            SWIFT_VERSION_MAJOR_MINOR=$(echo $SWIFT_VERSION | sed -E 's/([0-9]*)\.([0-9]*)(\.([0-9]*))?/\1.\2/g')
-            SWIFT_VERSION_MAJOR=$(echo $SWIFT_VERSION | sed -E 's/([0-9]*)\.([0-9]*)(\.([0-9]*))?/\1/g')
-            TAGS=$(echo "[\"latest\", \"$SWIFT_VERSION\", \"$SWIFT_VERSION_MAJOR_MINOR\",\"$SWIFT_VERSION_MAJOR\"]" | jq -r '. | unique | map("${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:" + .) | join(",")')
-            echo "::set-output name=tags::$TAGS"
+          LATEST_VERSION="${{ fromJson(needs.generate-matrix.outputs.matrix).swift_version[0] }}"
+          SWIFT_VERSION=latest BASE_IMAGE=$(eval "echo \"$(cat Dockerfile | grep FROM | awk '{ print $NF }')\"")
+          docker pull $BASE_IMAGE
+          SWIFT_VERSION=$(docker run --entrypoint swift "$BASE_IMAGE" --version | grep 'Swift version' | awk '{ print $NF }' | sed 's/[^0-9.]*\([0-9.]*\).*/\1/')
+          SWIFT_VERSION_MAJOR_MINOR=$(echo $SWIFT_VERSION | sed -E 's/([0-9]*)\.([0-9]*)(\.([0-9]*))?/\1.\2/g')
+          SWIFT_VERSION_MAJOR=$(echo $SWIFT_VERSION | sed -E 's/([0-9]*)\.([0-9]*)(\.([0-9]*))?/\1/g')
+          TAGS="[\"$SWIFT_VERSION\", \"$SWIFT_VERSION_MAJOR_MINOR\",\"$SWIFT_VERSION_MAJOR\"]"
+          if [[ "${{ matrix.swift_version }}" = "$LATEST_VERSION" ]]; then
+            TAGS=$(echo "$TAGS" | jq -c '. += ["latest"]')
           else
-            echo "::set-output name=tags::${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }}"
+            TAGS=$(echo "$TAGS" | jq -c '. | del(.[2])')
           fi
+          TAGS=$(echo "$TAGS" | jq -r '. | unique | map("${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:" + .) | join(",")')
+          echo "::set-output name=tags::$TAGS"
       - name: Build Docker image
         id: build-image
         uses: docker/build-push-action@v3

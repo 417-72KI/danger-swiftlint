@@ -1,13 +1,11 @@
 {
     "swift_version": [
-        "latest",
         "5.6",
         "5.5",
         "5.4",
         "5.3"
     ],
     "swiftlint_supported_version": {
-        "latest": "master",
         "5.6": "master",
         "5.5": "master",
         "5.4": "0.46.5",
