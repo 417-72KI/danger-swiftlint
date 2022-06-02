@@ -81,6 +81,7 @@ jobs:
             SWIFT_VERSION=${{ matrix.swift_version }}
             SWIFT_LINT_REVISION=${{ steps.set-swiftlint-version.outputs.swiftlint-version }}
       - name: Verify revisions to check if it needs to update image
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         id: needs-update
         run: |
           IMAGE_ID="$(echo ${{ steps.build-image.outputs.imageid }} | sed -r 's/:/ /g' | awk '{ print $NF }')"
@@ -114,10 +115,10 @@ jobs:
             echo "::set-output name=value::true"
           fi
       - name: Push image to DockerHub
-        if: ${{ steps.needs-update.outputs.value == 'true' }}
+        if: ${{ github.event_name == 'workflow_dispatch' || steps.needs-update.outputs.value == 'true' }}
         uses: docker/build-push-action@v3
         with: 
-          push: true
+          push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ steps.create-tags.outputs.tags }}
           build-args: |
             SWIFT_VERSION=${{ matrix.swift_version }}
