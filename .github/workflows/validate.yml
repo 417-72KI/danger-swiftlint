@@ -33,50 +33,55 @@ jobs:
       group: ${{ github.head_ref }}-${{ github.workflow }}-${{ matrix.swift_version }}
       cancel-in-progress: true
     steps:
-    - uses: actions/checkout@v3
-    - id: set-swiftlint-version
-      name: Set SwiftLint Version
-      run: |
-        swiftlint_version=$(echo '${{ needs.generate-matrix.outputs.matrix }}' | jq -c '.swiftlint_supported_version' | jq -r '.["${{ matrix.swift_version }}"]')
-        echo "::set-output name=swiftlint-version::$swiftlint_version"
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-    - name: Build Docker image
-      id: build-image
-      uses: docker/build-push-action@v3
-      with: 
-        push: false
-        load: true
-        tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }}
-        build-args: |
-          SWIFT_VERSION=${{ matrix.swift_version }}
-          SWIFT_LINT_REVISION=${{ steps.set-swiftlint-version.outputs.swiftlint-version }}
-    - name: Print Versions
-      run: |
-        IMAGE_ID="$(echo ${{ steps.build-image.outputs.imageid }} | sed -r 's/:/ /g' | awk '{ print $NF }')"
-        docker run --entrypoint show-versions "$IMAGE_ID"
-    - name: Run with sample Dangerfile.swift
-      if: ${{ matrix.swift_version == 'latest' }}
-      run: |
-        IMAGE_ID="$(echo ${{ steps.build-image.outputs.imageid }} | sed -r 's/:/ /g' | awk '{ print $NF }')"
-        docker run \
-          -e GITHUB_WORKFLOW="${GITHUB_WORKFLOW}" \
-          -e GITHUB_RUN_ID="${GITHUB_RUN_ID}" \
-          -e GITHUB_RUN_NUMBER="${GITHUB_RUN_NUMBER}" \
-          -e GITHUB_ACTION="${GITHUB_ACTION}" \
-          -e GITHUB_ACTIONS="${GITHUB_ACTIONS}" \
-          -e GITHUB_ACTOR="${GITHUB_ACTOR}" \
-          -e GITHUB_REPOSITORY="${GITHUB_REPOSITORY}" \
-          -e GITHUB_EVENT_NAME="${GITHUB_EVENT_NAME}" \
-          -e GITHUB_EVENT_PATH="${GITHUB_EVENT_PATH}" \
-          -e GITHUB_WORKSPACE="${GITHUB_WORKSPACE}" \
-          -e GITHUB_SHA="${GITHUB_SHA}" \
-          -e GITHUB_REF="${GITHUB_REF}" \
-          -e GITHUB_HEAD_REF="${GITHUB_HEAD_REF}" \
-          -e GITHUB_BASE_REF="${GITHUB_BASE_REF}" \
-          -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
-          -v /github:/github \
-          -v "${GITHUB_EVENT_PATH}":"${GITHUB_EVENT_PATH}" \
-          -v "${GITHUB_WORKSPACE}":"${GITHUB_WORKSPACE}" \
-          -w "${GITHUB_WORKSPACE}" \
-          "${IMAGE_ID}"
+      - uses: actions/checkout@v3
+      - id: set-swiftlint-version
+        name: Set SwiftLint Version
+        run: |
+          swiftlint_version=$(echo '${{ needs.generate-matrix.outputs.matrix }}' | jq -c '.swiftlint_supported_version' | jq -r '.["${{ matrix.swift_version }}"]')
+          echo "::set-output name=swiftlint-version::$swiftlint_version"
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          image: tonistiigi/binfmt:latest
+          platforms: all
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Build Docker image
+        id: build-image
+        uses: docker/build-push-action@v3
+        with: 
+          push: false
+          load: true
+          tags: ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }}
+          build-args: |
+            SWIFT_VERSION=${{ matrix.swift_version }}
+            SWIFT_LINT_REVISION=${{ steps.set-swiftlint-version.outputs.swiftlint-version }}
+      - name: Print Versions
+        run: |
+          IMAGE_ID="$(echo ${{ steps.build-image.outputs.imageid }} | sed -r 's/:/ /g' | awk '{ print $NF }')"
+          docker run --entrypoint show-versions "$IMAGE_ID"
+      - name: Run with sample Dangerfile.swift
+        if: ${{ matrix.swift_version == 'latest' }}
+        run: |
+          IMAGE_ID="$(echo ${{ steps.build-image.outputs.imageid }} | sed -r 's/:/ /g' | awk '{ print $NF }')"
+          docker run \
+            -e GITHUB_WORKFLOW="${GITHUB_WORKFLOW}" \
+            -e GITHUB_RUN_ID="${GITHUB_RUN_ID}" \
+            -e GITHUB_RUN_NUMBER="${GITHUB_RUN_NUMBER}" \
+            -e GITHUB_ACTION="${GITHUB_ACTION}" \
+            -e GITHUB_ACTIONS="${GITHUB_ACTIONS}" \
+            -e GITHUB_ACTOR="${GITHUB_ACTOR}" \
+            -e GITHUB_REPOSITORY="${GITHUB_REPOSITORY}" \
+            -e GITHUB_EVENT_NAME="${GITHUB_EVENT_NAME}" \
+            -e GITHUB_EVENT_PATH="${GITHUB_EVENT_PATH}" \
+            -e GITHUB_WORKSPACE="${GITHUB_WORKSPACE}" \
+            -e GITHUB_SHA="${GITHUB_SHA}" \
+            -e GITHUB_REF="${GITHUB_REF}" \
+            -e GITHUB_HEAD_REF="${GITHUB_HEAD_REF}" \
+            -e GITHUB_BASE_REF="${GITHUB_BASE_REF}" \
+            -e GITHUB_TOKEN="${{ secrets.GITHUB_TOKEN }}" \
+            -v /github:/github \
+            -v "${GITHUB_EVENT_PATH}":"${GITHUB_EVENT_PATH}" \
+            -v "${GITHUB_WORKSPACE}":"${GITHUB_WORKSPACE}" \
+            -w "${GITHUB_WORKSPACE}" \
+            "${IMAGE_ID}"
