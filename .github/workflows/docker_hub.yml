@@ -67,7 +67,7 @@ jobs:
         id: create-tags
         run: |
           LATEST_VERSION="${{ fromJson(needs.generate-matrix.outputs.matrix).swift_version[0] }}"
-          SWIFT_VERSION=latest BASE_IMAGE=$(eval "echo \"$(cat Dockerfile | grep FROM | awk '{ print $NF }')\"")
+          SWIFT_VERSION="${{ matrix.swift_version }}" BASE_IMAGE=$(eval "echo \"$(cat Dockerfile | grep FROM | awk '{ print $NF }')\"")
           docker pull $BASE_IMAGE
           SWIFT_VERSION=$(docker run --entrypoint swift "$BASE_IMAGE" --version | grep 'Swift version' | awk '{ print $NF }' | sed 's/[^0-9.]*\([0-9.]*\).*/\1/')
           SWIFT_VERSION_MAJOR_MINOR=$(echo $SWIFT_VERSION | sed -E 's/([0-9]*)\.([0-9]*)(\.([0-9]*))?/\1.\2/g')
