@@ -60,8 +60,8 @@ jobs:
         run: |
           IMAGE_ID="$(echo ${{ steps.build-image.outputs.imageid }} | sed -r 's/:/ /g' | awk '{ print $NF }')"
           docker run --entrypoint show-versions "$IMAGE_ID"
-      - name: Run with sample Dangerfile.swift
-        if: ${{ matrix.swift_version == 'latest' }}
+      - name: Run with sample Dangerfile.swift on latest Swift version
+        if: ${{ matrix.swift_version == fromJson(needs.generate-matrix.outputs.matrix).swift_version[0] }}
         run: |
           IMAGE_ID="$(echo ${{ steps.build-image.outputs.imageid }} | sed -r 's/:/ /g' | awk '{ print $NF }')"
           docker run \
