@@ -15,11 +15,7 @@ ENV DANGER_SWIFT_REVISION=${DANGER_SWIFT_REVISION} \
 
 # Install NPM
 RUN apt-get update \
-    # && mv /usr/lib/python2.7/site-packages /usr/lib/python2.7/dist-packages; ln -s dist-packages /usr/lib/python2.7/site-package \
-    && apt-get install -y nodejs-dev node-gyp libssl1.0-dev npm wget \
-    && npm install -g n \
-    && n stable \
-    && apt-get purge -y npm nodejs
+    && apt-get install -y npm
 
 # Install Danger-JS(Danger-Swift depends)
 RUN npm install -g danger \
