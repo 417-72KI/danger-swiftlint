@@ -30,10 +30,6 @@ RUN mint install realm/SwiftLint@${SWIFT_LINT_REVISION} \
 # RUN mint install danger/swift@${DANGER_SWIFT_REVISION}
 RUN git clone --depth=1 -b ${DANGER_SWIFT_REVISION} https://github.com/danger/danger-swift.git ~/danger-swift \
     && git -C ~/danger-swift rev-parse HEAD > /.danger-swift_revision \
-    # Unknown error occurs on release build
-    # swift: /home/buildnode/jenkins/workspace/oss-swift-5.3-package-linux-ubuntu-18_04/llvm-project/llvm/lib/CodeGen/AsmPrinter/DwarfExpression.cpp:572: void llvm::DwarfExpression::addFragmentOffset(const llvm::DIExpression *): Assertion `FragmentOffset >= OffsetInBits && "overlapping or duplicate fragments"' failed.
-    && sed -e 's/release/debug/g' ~/danger-swift/Makefile > ~/danger-swift/Makefile_tmp \
-    && mv ~/danger-swift/Makefile_tmp ~/danger-swift/Makefile \
     && make -C ~/danger-swift install \
     && rm -rf ~/danger-swift
 
