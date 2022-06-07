@@ -15,7 +15,7 @@ ENV DANGER_SWIFT_REVISION=${DANGER_SWIFT_REVISION} \
 
 # Install NPM
 RUN apt-get update \
-    && apt-get install -y npm wget \
+    && apt-get install -y npm curl \
     && npm install -g n \
     && n stable \
     && apt-get purge -y npm
