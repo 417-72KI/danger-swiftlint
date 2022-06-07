@@ -24,10 +24,6 @@ RUN apt-get update \
 RUN npm install -g danger \
     && danger-js --version > /.danger-js_revision
 
-# Install SwiftLint
-RUN mint install realm/SwiftLint@${SWIFT_LINT_REVISION} \
-    && swiftlint --version > /.swiftlint_revision
-
 # Install Danger-Swift
 # Error occurs on running(https://github.com/danger/swift/issues/309)
 # RUN mint install danger/swift@${DANGER_SWIFT_REVISION}
@@ -35,6 +31,10 @@ RUN git clone --depth=1 -b ${DANGER_SWIFT_REVISION} https://github.com/danger/da
     && git -C ~/danger-swift rev-parse HEAD > /.danger-swift_revision \
     && make -C ~/danger-swift install \
     && rm -rf ~/danger-swift
+
+# Install SwiftLint
+RUN mint install realm/SwiftLint@${SWIFT_LINT_REVISION} \
+    && swiftlint --version > /.swiftlint_revision
 
 ADD entrypoint.sh /usr/local/bin/entrypoint
 ADD versions.sh /usr/local/bin/show-versions
