@@ -15,7 +15,10 @@ ENV DANGER_SWIFT_REVISION=${DANGER_SWIFT_REVISION} \
 
 # Install NPM
 RUN apt-get update \
-    && apt-get install -y npm
+    && apt-get install -y npm wget \
+    && npm install -g n \
+    && n stable \
+    && apt-get purge -y npm
 
 # Install Danger-JS(Danger-Swift depends)
 RUN npm install -g danger \
