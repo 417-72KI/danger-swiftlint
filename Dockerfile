@@ -6,7 +6,7 @@ LABEL homepage "https://github.com/417-72KI/danger-swiftlint"
 LABEL maintainer "417-72KI <417.72ki@gmail.com>"
 
 ARG DANGER_SWIFT_REVISION=master
-ARG SWIFT_LINT_REVISION=master
+ARG SWIFT_LINT_REVISION=main
 ARG DANGER_JS_REVISION=master
 
 ENV DANGER_SWIFT_REVISION=${DANGER_SWIFT_REVISION} \
