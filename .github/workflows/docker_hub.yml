@@ -128,7 +128,9 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' || steps.needs-update.outputs.value == 'true' }}
         uses: docker/build-push-action@v3
         with: 
-          platforms: ${{ (matrix.swift_version == 5.6 && 'linux/amd64,linux/arm64') || 'linux/amd64' }}
+          # Issue: It takes too much time on building arm64 image and failed to install Danger-Swift in GitHub Actions. https://github.com/417-72KI/danger-swiftlint/actions/runs/2453009152/jobs/3755764562
+          # platforms: ${{ (matrix.swift_version == 5.6 && 'linux/amd64,linux/arm64') || 'linux/amd64' }}
+          platforms: 'linux/amd64'
           push: ${{ github.ref == 'refs/heads/main' }}
           tags: ${{ steps.create-tags.outputs.tags }}
           build-args: |
