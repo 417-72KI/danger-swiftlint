@@ -25,12 +25,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Danger
-        uses: 417-72KI/danger-swiftlint@v5.6
+        uses: 417-72KI/danger-swiftlint@v5.7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Note for version
+- v5.7: Swift 5.7
 - v5.6: Swift 5.6
 - v5.5: Swift 5.5
 - v4: Swift 5.4 (no longer updated)
