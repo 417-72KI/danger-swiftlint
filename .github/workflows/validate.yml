@@ -18,10 +18,11 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v3
-      - id: set-matrix
+      - name: Set matrix
+        id: set-matrix  
         run: |
           matrix=$(cat .github/matrix.json | jq -c .)
-          echo "::set-output name=matrix::$matrix"
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
   validate:
     needs: generate-matrix
     strategy:
@@ -34,11 +35,11 @@ jobs:
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v3
-      - id: set-swiftlint-version
-        name: Set SwiftLint Version
+      - name: Set SwiftLint Version
+        id: set-swiftlint-version
         run: |
           swiftlint_version=$(echo '${{ needs.generate-matrix.outputs.matrix }}' | jq -c '.swiftlint_supported_version' | jq -r '.["${{ matrix.swift_version }}"]')
-          echo "::set-output name=swiftlint-version::$swiftlint_version"
+          echo "swiftlint-version=$swiftlint_version" >> $GITHUB_OUTPUT
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         with:

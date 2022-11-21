@@ -24,9 +24,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - id: set-matrix
+        name: Set matrix
         run: |
           matrix=$(cat .github/matrix.json | jq -c .)
-          echo "::set-output name=matrix::$matrix"
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
   build:
     needs: generate-matrix
     strategy:
@@ -39,11 +40,11 @@ jobs:
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v3
-      - id: set-swiftlint-version
-        name: Set SwiftLint Version
+      - name: Set SwiftLint Version
+        id: set-swiftlint-version
         run: |
           swiftlint_version=$(echo '${{ needs.generate-matrix.outputs.matrix }}' | jq -c '.swiftlint_supported_version' | jq -r '.["${{ matrix.swift_version }}"]')
-          echo "::set-output name=swiftlint-version::$swiftlint_version"
+          echo "swiftlint-version=$swiftlint_version" >> $GITHUB_OUTPUT
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         with:
@@ -59,10 +60,10 @@ jobs:
       - name: Fetch revisions for tools installed in current Docker image
         id: revisions
         run: |
-          echo "::set-output name=mint::$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.mint_revision)"
-          echo "::set-output name=swiftlint::$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.swiftlint_revision)"
-          echo "::set-output name=danger-js::$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.danger-js_revision)"
-          echo "::set-output name=danger-swift::$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.danger-swift_revision)"
+          echo "mint=$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.mint_revision)" >> $GITHUB_OUTPUT
+          echo "swiftlint=$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.swiftlint_revision)" >> $GITHUB_OUTPUT
+          echo "danger-js=$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.danger-js_revision)" >> $GITHUB_OUTPUT
+          echo "danger-swift=$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.danger-swift_revision)" >> $GITHUB_OUTPUT
       - name: Create tags for push
         id: create-tags
         run: |
@@ -79,7 +80,7 @@ jobs:
             TAGS=$(echo "$TAGS" | jq -c '. | del(.[2])')
           fi
           TAGS=$(echo "$TAGS" | jq -r '. | unique | map("${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:" + .) | join(",")')
-          echo "::set-output name=tags::$TAGS"
+          echo "tags=$TAGS" >> $GITHUB_OUTPUT
       - name: Build Docker image
         id: build-image
         uses: docker/build-push-action@v3
@@ -95,34 +96,34 @@ jobs:
         id: needs-update
         run: |
           IMAGE_ID="$(echo ${{ steps.build-image.outputs.imageid }} | sed -r 's/:/ /g' | awk '{ print $NF }')"
-          echo "::set-output name=value::false"
+          echo "value=false" >> $GITHUB_OUTPUT
 
           BUILT_MINT_REVISION="$(docker run --entrypoint /bin/cat -t "${IMAGE_ID}" /.mint_revision | tr -d '\n')"
           CURRENT_MINT_REVISION="$(echo ${{ steps.revisions.outputs.mint }} | tr -d '\n')"
           if [ "${BUILT_MINT_REVISION::8}" != "${CURRENT_MINT_REVISION::8}" ]; then
             echo 'mint updated.'
-            echo "::set-output name=value::true"
+            echo "value=true" >> $GITHUB_OUTPUT
           fi
 
           BUILT_SWIFTLINT_REVISION="$(docker run --entrypoint /bin/cat -t "${IMAGE_ID}" /.swiftlint_revision | tr -d '\n')"
           CURRENT_SWIFTLINT_REVISION="$(echo ${{ steps.revisions.outputs.swiftlint }} | tr -d '\n')"
           if [ "${BUILT_SWIFTLINT_REVISION::8}" != "${CURRENT_SWIFTLINT_REVISION::8}" ]; then
             echo 'swiftlint updated.'
-            echo "::set-output name=value::true"
+            echo "value=true" >> $GITHUB_OUTPUT
           fi
 
           BUILT_DANGER_JS_REVISION="$(docker run --entrypoint /bin/cat -t "${IMAGE_ID}" /.danger-js_revision | tr -d '\n')"
           CURRENT_DANGER_JS_REVISION="$(echo ${{ steps.revisions.outputs.danger-js }} | tr -d '\n')"
           if [ "${BUILT_DANGER_JS_REVISION::8}" != "${CURRENT_DANGER_JS_REVISION::8}" ]; then
             echo 'danger-js updated.'
-            echo "::set-output name=value::true"
+            echo "value=true" >> $GITHUB_OUTPUT
           fi
 
           BUILT_DANGER_SWIFT_REVISION="$(docker run --entrypoint /bin/cat -t "${IMAGE_ID}" /.danger-swift_revision | tr -d '\n')"
           CURRENT_DANGER_SWIFT_REVISION="$(echo ${{ steps.revisions.outputs.danger-swift }} | tr -d '\n')"
           if [ "${BUILT_DANGER_SWIFT_REVISION::8}" != "${CURRENT_DANGER_SWIFT_REVISION::8}" ]; then
             echo 'danger-swift updated.'
-            echo "::set-output name=value::true"
+            echo "value=true" >> $GITHUB_OUTPUT
           fi
       - name: Push image to DockerHub
         if: ${{ github.event_name == 'workflow_dispatch' || steps.needs-update.outputs.value == 'true' }}
