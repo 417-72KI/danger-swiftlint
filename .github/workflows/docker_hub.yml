@@ -60,6 +60,10 @@ jobs:
       - name: Fetch revisions for tools installed in current Docker image
         id: revisions
         run: |
+          echo "mint=$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.mint_revision)"
+          echo "swiftlint=$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.swiftlint_revision)"
+          echo "danger-js=$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.danger-js_revision)"
+          echo "danger-swift=$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.danger-swift_revision)"
           echo "mint=$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.mint_revision)" >> $GITHUB_OUTPUT
           echo "swiftlint=$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.swiftlint_revision)" >> $GITHUB_OUTPUT
           echo "danger-js=$(docker run --entrypoint /bin/sh -t ${{ env.DOCKER_USER }}/${{ env.DOCKER_REPO }}:${{ matrix.swift_version }} cat /.danger-js_revision)" >> $GITHUB_OUTPUT
