@@ -40,3 +40,6 @@ buildx-5.6:
 	--build-arg SWIFT_LINT_REVISION=$(shell cat .github/matrix.json | jq -rc '.swiftlint_supported_version."5.6"') \
 	--tag $(DOCKER_USER)/$(IMAGE_NAME):5.6 \
 	.
+
+arm64:
+	@scripts/build_and_push_arm64_image.sh $(DOCKER_USER) $(IMAGE_NAME)
