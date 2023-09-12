@@ -46,7 +46,7 @@ jobs:
           swiftlint_version=$(echo '${{ needs.generate-matrix.outputs.matrix }}' | jq -c '.swiftlint_supported_version' | jq -r '.["${{ matrix.swift_version }}"]')
           echo "swiftlint-version=$swiftlint_version" >> $GITHUB_OUTPUT
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           image: tonistiigi/binfmt:latest
           platforms: all
