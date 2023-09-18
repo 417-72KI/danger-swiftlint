@@ -25,6 +25,7 @@ ARG DANGER_SWIFT_REVISION=master
 ENV DANGER_SWIFT_REVISION=${DANGER_SWIFT_REVISION}
 RUN git clone --depth=1 -b ${DANGER_SWIFT_REVISION} https://github.com/danger/danger-swift.git ~/danger-swift \
     && git -C ~/danger-swift rev-parse HEAD > /.danger-swift_revision \
+    && sed -i -e 's/let isDevelop = true/let isDevelop = false/g' ~/danger-swift/Package.swift \
     && make -C ~/danger-swift install \
     && rm -rf ~/danger-swift
 
