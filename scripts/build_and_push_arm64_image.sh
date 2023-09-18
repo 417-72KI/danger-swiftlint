@@ -6,13 +6,14 @@ if [[ $(arch) != "arm64" ]]; then
 fi
 
 local -A opthash
-zparseopts -D -A opthash -- -help h -force f
+zparseopts -D -A opthash -- -help h -force f -swift-version: s:
 
 if [[ -n $opthash[(i)--help] ]] || [[ -n $opthash[(i)-h] ]]; then
     echo "Usage: $0 [options] DOCKER_USER IMAGE_NAME"
     echo "Options:"
     echo "  --help  -h: Show this help message"
     echo "  --force -f: Force to build and push images"
+    echo "  --swift-version -s {swift_version}: Build and push image for specific Swift version"
     exit 0
 fi
 
@@ -20,6 +21,12 @@ if [[ -n $opthash[(i)--force] ]] || [[ -n $opthash[(i)-f] ]]; then
     FORCE=true
 else
     FORCE=false
+fi
+
+if [[ -n $opthash[(i)--swift-version] ]]; then
+    SWIFT_VERSION=$opthash[--swift-version]
+elif [[ -n $opthash[(i)-s] ]]; then
+    SWIFT_VERSION=$opthash[-s]
 fi
 
 DOCKER_USER=$1
@@ -30,6 +37,10 @@ MATRIX_JSON=$(cat "$REPO_ROOT"/.github/matrix.json | jq -rc .)
 LATEST_VERSION=$(echo "$MATRIX_JSON" | jq -r '.swift_version[0]')
 
 for version in $(echo "$MATRIX_JSON" | jq -r '.swift_version[]'); do
+    if [[ -n $SWIFT_VERSION ]] && [[ $SWIFT_VERSION != $version ]]; then
+        continue
+    fi
+
     # Less than 5.6 doesn't support arm64
     if [[ $(($version)) -lt 5.6 ]]; then
         continue
