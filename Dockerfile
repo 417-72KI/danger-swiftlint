@@ -15,7 +15,7 @@ RUN apt-get update \
 # Install Danger-JS(Danger-Swift depends)
 ARG DANGER_JS_REVISION=master
 ENV DANGER_JS_REVISION=${DANGER_JS_REVISION}
-RUN npm install -g danger \
+RUN npm install -g danger | tee /var/log/danger-js-build.log \
     && danger-js --version > /.danger-js_revision
 
 # Install Danger-Swift
@@ -26,13 +26,13 @@ ENV DANGER_SWIFT_REVISION=${DANGER_SWIFT_REVISION}
 RUN git clone --depth=1 -b ${DANGER_SWIFT_REVISION} https://github.com/danger/danger-swift.git ~/danger-swift \
     && git -C ~/danger-swift rev-parse HEAD > /.danger-swift_revision \
     && sed -i -e 's/let isDevelop = true/let isDevelop = false/g' ~/danger-swift/Package.swift \
-    && make -C ~/danger-swift install \
+    && make -C ~/danger-swift install | tee /var/log/danger-swift-build.log \
     && rm -rf ~/danger-swift
 
 # Install SwiftLint
 ARG SWIFT_LINT_REVISION=main
 ENV SWIFT_LINT_REVISION=${SWIFT_LINT_REVISION}
-RUN mint install realm/SwiftLint@${SWIFT_LINT_REVISION} \
+RUN mint install realm/SwiftLint@${SWIFT_LINT_REVISION} | tee /var/log/swiftlint-build.log \
     && swiftlint --version > /.swiftlint_revision
 
 ADD entrypoint.sh /usr/local/bin/entrypoint
