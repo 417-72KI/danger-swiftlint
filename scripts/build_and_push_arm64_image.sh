@@ -59,6 +59,11 @@ for version in $(echo "$MATRIX_JSON" | jq -r '.swift_version[]'); do
         echo "\e[32mFetching amd64 image for $version started...\e[m"
         docker pull --platform=linux/amd64 "$DOCKER_USER/$IMAGE_NAME:$version"
         echo "\e[32mFetching amd64 image finished!\e[m"
+        docker run --rm --platform=linux/amd64 --entrypoint show-versions -t "$DOCKER_USER/$IMAGE_NAME:$version"
+        if [[ $? -ne 0 ]]; then
+            echo "\e[31mFetched amd64 image for $version is not expected.\e[m"
+            exit 1
+        fi
         AMD64_IMAGE_ID=$(docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "$DOCKER_USER/$IMAGE_NAME:$version" | grep -v arm64 | awk '{print $2}')
         docker tag $AMD64_IMAGE_ID "$DOCKER_USER/$IMAGE_NAME:$version-amd64"
         docker push "$DOCKER_USER/$IMAGE_NAME:$version-amd64"
