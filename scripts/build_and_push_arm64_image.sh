@@ -103,6 +103,7 @@ for version in $(echo "$MATRIX_JSON" | jq -r '.swift_version[]'); do
         fi
 
         # Clean up
+        echo "\e[32mCleaning up...\e[m"
         docker image rm "$DOCKER_USER/$IMAGE_NAME:$version" \
             "$DOCKER_USER/$IMAGE_NAME:$version-amd64" \
             "$DOCKER_USER/$IMAGE_NAME:$version-arm64"
