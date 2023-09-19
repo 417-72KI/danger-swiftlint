@@ -69,24 +69,29 @@ for version in $(echo "$MATRIX_JSON" | jq -r '.swift_version[]'); do
         swiftlint_version=$(echo "$MATRIX_JSON" | jq -r ".swiftlint_supported_version[\"$version\"]")
         docker build --build-arg SWIFT_VERSION=$version --build-arg SWIFT_LINT_REVISION=$swiftlint_version -t "$DOCKER_USER/$IMAGE_NAME:$version-arm64" -f "$REPO_ROOT/Dockerfile" "$REPO_ROOT"
         if [[ $? -eq 0 ]]; then
-            docker push "$DOCKER_USER/$IMAGE_NAME:$version-arm64"
-            echo "\e[32mBuilding arm64 image finished!\e[m"
+            docker run --rm --entrypoint show-versions -t "$DOCKER_USER/$IMAGE_NAME:$version-arm64"
+            if [[ $? -eq 0 ]]; then
+                docker push "$DOCKER_USER/$IMAGE_NAME:$version-arm64"
+                echo "\e[32mBuilding arm64 image finished!\e[m"
 
-            # Create manifest
-            echo "\e[32mCreating manifest started...\e[m"
-            docker manifest create "$DOCKER_USER/$IMAGE_NAME:$version" \
-                --amend "$DOCKER_USER/$IMAGE_NAME:$version-amd64" \
-                --amend "$DOCKER_USER/$IMAGE_NAME:$version-arm64"
-            docker manifest push "$DOCKER_USER/$IMAGE_NAME:$version"
-            echo "\e[32mCreating manifest finished!\e[m"
-
-            # Create latest manifest
-            if [[ "$version" == "$LATEST_VERSION" ]]; then
-                echo "\e[32mCreating latest manifest...\e[m"
-                docker manifest create "$DOCKER_USER/${IMAGE_NAME}:latest" \
+                # Create manifest
+                echo "\e[32mCreating manifest started...\e[m"
+                docker manifest create "$DOCKER_USER/$IMAGE_NAME:$version" \
                     --amend "$DOCKER_USER/$IMAGE_NAME:$version-amd64" \
                     --amend "$DOCKER_USER/$IMAGE_NAME:$version-arm64"
-                docker manifest push "$DOCKER_USER/${IMAGE_NAME}:latest"
+                docker manifest push "$DOCKER_USER/$IMAGE_NAME:$version"
+                echo "\e[32mCreating manifest finished!\e[m"
+
+                # Create latest manifest
+                if [[ "$version" == "$LATEST_VERSION" ]]; then
+                    echo "\e[32mCreating latest manifest...\e[m"
+                    docker manifest create "$DOCKER_USER/${IMAGE_NAME}:latest" \
+                        --amend "$DOCKER_USER/$IMAGE_NAME:$version-amd64" \
+                        --amend "$DOCKER_USER/$IMAGE_NAME:$version-arm64"
+                    docker manifest push "$DOCKER_USER/${IMAGE_NAME}:latest"
+                fi
+            else
+                echo "\e[31mBuilt arm64 image for $version is not expected.\e[m"
             fi
         else
             echo "\e[31mBuilding arm64 image for $version failed!\e[m"
