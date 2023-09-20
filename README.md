@@ -33,7 +33,7 @@ jobs:
 ### Note for version
 - v5.8: Swift 5.8
 - v5.7: Swift 5.7
-- v5.6: Swift 5.6
+- v5.6: Swift 5.6 (no longer updated)
 - v5.5: Swift 5.5 (no longer updated)
 - v4: Swift 5.4 (no longer updated)
 - v3: Swift 5.3 (no longer updated)
