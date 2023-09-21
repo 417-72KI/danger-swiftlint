@@ -1,6 +1,6 @@
 DOCKER_USER = 41772ki
 IMAGE_NAME = danger-swiftlint
-LATEST_SWIFT_VERSION = 5.8
+LATEST_SWIFT_VERSION = 5.9
 
 build:
 	docker build -qt $(IMAGE_NAME):$(LATEST_SWIFT_VERSION) .
