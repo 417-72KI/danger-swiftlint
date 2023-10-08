@@ -65,9 +65,6 @@ for version in $(echo "$MATRIX_JSON" | jq -r '.swift_version[]'); do
             exit 1
         fi
         AMD64_IMAGE_ID=$(docker images --format "{{.Repository}}:{{.Tag}} {{.ID}}" | grep "$DOCKER_USER/$IMAGE_NAME:$version" | grep -v arm64 | awk '{print $2}')
-        docker tag $AMD64_IMAGE_ID "$DOCKER_USER/$IMAGE_NAME:$version-amd64"
-        docker push "$DOCKER_USER/$IMAGE_NAME:$version-amd64"
-        echo "\e[32mRe-tagging amd64 image for $version finished!\e[m"
 
         # Build arm64 image
         echo "\e[32mBuilding arm64 image for $version started...\e[m"
@@ -76,6 +73,10 @@ for version in $(echo "$MATRIX_JSON" | jq -r '.swift_version[]'); do
         if [[ $? -eq 0 ]]; then
             docker run --rm --entrypoint show-versions -t "$DOCKER_USER/$IMAGE_NAME:$version-arm64"
             if [[ $? -eq 0 ]]; then
+                docker tag $AMD64_IMAGE_ID "$DOCKER_USER/$IMAGE_NAME:$version-amd64"
+                docker push "$DOCKER_USER/$IMAGE_NAME:$version-amd64"
+                echo "\e[32mRe-tagging amd64 image for $version finished!\e[m"
+
                 docker push "$DOCKER_USER/$IMAGE_NAME:$version-arm64"
                 echo "\e[32mBuilding arm64 image finished!\e[m"
 
