@@ -41,8 +41,8 @@ buildx-5.6:
 	--tag $(DOCKER_USER)/$(IMAGE_NAME):5.6 \
 	.
 
-arm64:
+arm64-all:
 	@scripts/build_and_push_arm64_image.sh -f $(DOCKER_USER) $(IMAGE_NAME)
 
-arm64-v:
+arm64:
 	@scripts/build_and_push_arm64_image.sh -s $(shell cat .github/matrix.json | jq -r '.swift_version[]' | peco) -f $(DOCKER_USER) $(IMAGE_NAME)
