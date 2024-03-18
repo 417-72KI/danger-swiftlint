@@ -41,11 +41,6 @@ for version in $(echo "$MATRIX_JSON" | jq -r '.swift_version[]'); do
         continue
     fi
 
-    # Less than 5.6 doesn't support arm64
-    if [[ $(($version)) -lt 5.6 ]]; then
-        continue
-    fi
-
     needs_update=$FORCE
     if [[ $FORCE == false ]]; then
         docker manifest rm "$DOCKER_USER/$IMAGE_NAME:$version" > /dev/null 2>/dev/null
