@@ -32,8 +32,10 @@ RUN git clone --depth=1 -b ${DANGER_SWIFT_REVISION} https://github.com/danger/da
 # Install SwiftLint
 ARG SWIFT_LINT_REVISION=main
 ENV SWIFT_LINT_REVISION=${SWIFT_LINT_REVISION}
-RUN mint install --verbose realm/SwiftLint@${SWIFT_LINT_REVISION} | tee /var/log/swiftlint-build.log \
-    && swiftlint --version > /.swiftlint_revision
+RUN git clone --depth=1 -b ${SWIFT_LINT_REVISION} https://github.com/realm/SwiftLint.git ~/SwiftLint \
+    && git -C ~/SwiftLint rev-parse HEAD > /.swiftlint_revision \
+    && make -C ~/SwiftLint install | tee /var/log/swiftlint-build.log \
+    && rm -rf ~/SwiftLint
 
 ADD entrypoint.sh /usr/local/bin/entrypoint
 ADD versions.sh /usr/local/bin/show-versions
