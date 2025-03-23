@@ -1,16 +1,9 @@
 ARG SWIFT_VERSION=latest
-FROM 41772ki/swift-mint:${SWIFT_VERSION}
+FROM 41772ki/swift-mint:${SWIFT_VERSION}-npm
 
 LABEL repository="https://github.com/417-72KI/danger-swiftlint"
 LABEL homepage="https://github.com/417-72KI/danger-swiftlint"
 LABEL maintainer="417-72KI <417.72ki@gmail.com>"
-
-# Install NPM
-RUN apt-get update \
-    && apt-get install -y npm curl \
-    && npm install -g n \
-    && n stable \
-    && apt-get purge -y npm
 
 # Install Danger-JS(Danger-Swift depends)
 ARG DANGER_JS_REVISION=master
