@@ -2,7 +2,7 @@
 
 DOCKER_USER = 41772ki
 IMAGE_NAME = danger-swiftlint
-LATEST_SWIFT_VERSION = 6.0
+LATEST_SWIFT_VERSION = 6.1
 SWIFT_VERSION = $(LATEST_SWIFT_VERSION)
 
 build:
@@ -11,26 +11,30 @@ build:
 		| xargs -I {} docker build \
 			--build-arg SWIFT_VERSION=$(SWIFT_VERSION) \
 			--build-arg SWIFT_LINT_REVISION={} \
+			--no-cache=true \
 			-t $(DOCKER_USER)/$(IMAGE_NAME):$(SWIFT_VERSION) \
 			.
 
-swift_version: build
-	docker run --entrypoint swift $(IMAGE_NAME):$(SWIFT_VERSION) --version
+swift_version:
+	docker run --entrypoint swift $(DOCKER_USER)/$(IMAGE_NAME):$(SWIFT_VERSION) --version
 
-mint_version: build
-	docker run --entrypoint mint $(IMAGE_NAME):$(SWIFT_VERSION) version
+mint_version:
+	docker run --entrypoint mint $(DOCKER_USER)/$(IMAGE_NAME):$(SWIFT_VERSION) version
 
-danger_version: build
-	docker run $(IMAGE_NAME):$(SWIFT_VERSION) --version
+danger_version:
+	docker run $(DOCKER_USER)/$(IMAGE_NAME):$(SWIFT_VERSION) --version
 
-swiftlint_version: build
-	docker run --entrypoint swiftlint $(IMAGE_NAME):$(SWIFT_VERSION) version
+swiftlint_version:
+	docker run --entrypoint swiftlint $(DOCKER_USER)/$(IMAGE_NAME):$(SWIFT_VERSION) version
 
-run: build
-	docker run -v `pwd`:`pwd` -w `pwd` -it $(IMAGE_NAME):$(SWIFT_VERSION)
+run:
+	docker run -v `pwd`:`pwd` -w `pwd` -it $(DOCKER_USER)/$(IMAGE_NAME):$(SWIFT_VERSION)
 
-run_local: build
-	docker run -v `pwd`:`pwd` -w `pwd` -it $(IMAGE_NAME):$(SWIFT_VERSION) local
+run_local:
+	docker run -v `pwd`:`pwd` -w `pwd` -it $(DOCKER_USER)/$(IMAGE_NAME):$(SWIFT_VERSION) local
+
+run_pr:
+	docker run -v `pwd`:`pwd` -w `pwd` -it $(DOCKER_USER)/$(IMAGE_NAME):$(SWIFT_VERSION) pr $(shell gh pr list --state all --json url --jq '.[].url' | peco)
 
 buildx:
 	docker buildx build \
