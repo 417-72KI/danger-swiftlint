@@ -32,8 +32,8 @@ jobs:
 
 ### Note for version
 > [!IMPORTANT]
-> Docker images in `v5.8` and higher versions are updated for once a week.  
-> `v5.7` and below also can be used in GitHub Actions, but Docker images of them are no longer updated.
+> Docker images in `v5.9` and higher versions are updated for once a week.  
+> `v5.8` and below also can be used in GitHub Actions, but Docker images of them are no longer updated.
 
 | tag | Swift version |
 | --- | ------------- |
