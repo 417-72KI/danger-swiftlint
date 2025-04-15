@@ -23,17 +23,17 @@ jobs:
   Danger:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Danger
-        uses: 417-72KI/danger-swiftlint@v6.0 # Look at the `Note for version`
+        uses: 417-72KI/danger-swiftlint@v6.1 # Look at the `Note for version`
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Note for version
 > [!IMPORTANT]
-> Docker images in `v5.8` and higher versions are updated for once a week.  
-> `v5.7` and below also can be used in GitHub Actions, but Docker images of them are no longer updated.
+> Docker images in `v5.9` and higher versions are updated for once a week.  
+> `v5.8` and below also can be used in GitHub Actions, but Docker images of them are no longer updated.
 
 | tag | Swift version |
 | --- | ------------- |
