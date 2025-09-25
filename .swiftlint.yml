@@ -1,0 +1,8 @@
+opt_in_rules:
+  - all
+disabled_rules:
+  - contrasted_opening_brace
+  - explicit_acl
+  - explicit_top_level_acl
+  - explicit_type_interface
+  - prefixed_toplevel_constant
