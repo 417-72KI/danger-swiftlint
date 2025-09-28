@@ -25,6 +25,13 @@ if let swiftVersion = shell("swift", "--version") {
     danger.fail("swift is not installed.")
 }
 
+_ = "This line should be detected by custom rule `test` in SwiftLint."
+
 SwiftLint.lint(inline: true)
 
-danger.message("Validation passed! 🎉")
+switch danger.warnings.count {
+case 0: danger.fail("SwiftLint may not run correctly.")
+case 1 where danger.fails.isEmpty: danger.message("Validation passed! 🎉")
+case 1: break
+default: danger.warn("Some unexpected warnings were found.")
+}
