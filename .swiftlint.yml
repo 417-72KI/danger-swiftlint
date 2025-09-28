@@ -1,0 +1,16 @@
+opt_in_rules:
+  - all
+disabled_rules:
+  - contrasted_opening_brace
+  - explicit_acl
+  - explicit_top_level_acl
+  - explicit_type_interface
+  - prefixed_toplevel_constant
+  - switch_case_on_newline
+custom_rules:
+  test:
+    included: ^(.*/)?Danger.*\.swift$
+    name: Test
+    message: If this message shown, it is correct.
+    regex: ^_ = "This line should be detected by custom rule `test` in SwiftLint\."$
+    severity: warning
