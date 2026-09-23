@@ -1,5 +1,12 @@
 {
   "extends": [
       "github>417-72KI/renovate-config"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["41772ki/swift-mint"],
+      "pinDigests": false
+    }
   ]
 }
