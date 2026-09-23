@@ -22,7 +22,7 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - id: set-matrix
         name: Set matrix
         run: |
@@ -41,21 +41,21 @@ jobs:
     steps:
       - name: Delete huge unnecessary tools folder
         run: rm -rf /opt/hostedtoolcache
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - name: Set SwiftLint Version
         id: set-swiftlint-version
         run: |
           swiftlint_version=$(echo '${{ needs.generate-matrix.outputs.matrix }}' | jq -c '.swiftlint_supported_version' | jq -r '.["${{ matrix.swift_version }}"]')
           echo "swiftlint-version=$swiftlint_version" >> $GITHUB_OUTPUT
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
         with:
           image: tonistiigi/binfmt:latest
           platforms: all
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
       - name: Login DockerHub
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           username: ${{ env.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
@@ -89,7 +89,7 @@ jobs:
           echo "tags=$TAGS" >> $GITHUB_OUTPUT
       - name: Build Docker image
         id: build-image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5
         with: 
           push: false
           load: true
@@ -141,7 +141,7 @@ jobs:
           fi
       - name: Push image to DockerHub
         if: ${{ github.event_name == 'workflow_dispatch' || steps.needs-update.outputs.value == 'true' }}
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5
         with: 
           # Issue: It takes too much time on building arm64 image and failed to install Danger-Swift in GitHub Actions. https://github.com/417-72KI/danger-swiftlint/actions/runs/2453009152/jobs/3755764562
           # platforms: ${{ (matrix.swift_version == 5.6 && 'linux/amd64,linux/arm64') || 'linux/amd64' }}
