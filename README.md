@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Danger
-        uses: 417-72KI/danger-swiftlint@v6.3 # Look at the `Note for version`
+        uses: 417-72KI/danger-swiftlint@v6.4 # Look at the `Note for version`
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
