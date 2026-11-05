@@ -7,6 +7,11 @@
       "matchManagers": ["dockerfile"],
       "matchPackageNames": ["41772ki/swift-mint"],
       "pinDigests": false
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchPackageNames": ["41772ki/danger-swiftlint"],
+      "pinDigests": false
     }
   ]
 }
