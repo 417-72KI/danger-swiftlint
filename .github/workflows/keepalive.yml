@@ -1,0 +1,21 @@
+name: Prevent scheduled workflow from being automatically disabled
+on:
+  schedule:
+    - cron: '0 15 1,15 * *'
+  workflow_dispatch:
+concurrency:
+  group: keepalive
+  cancel-in-progress: false
+jobs:
+  keepalive:
+    permissions:
+      actions: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Re-enable workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh workflow enable keepalive.yml
+          gh workflow enable docker_hub.yml
